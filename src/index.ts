@@ -1,1 +1,1 @@
-import { UserForm }
+import { UserForm } from './views/UserForm';
