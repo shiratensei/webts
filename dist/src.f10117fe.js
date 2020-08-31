@@ -128,22 +128,40 @@ exports.UserForm = void 0;
 var UserForm =
 /** @class */
 function () {
-  function UserForm(parent, model) {
+  function UserForm(parent, user) {
+    var _this = this;
+
     this.parent = parent;
-    this.model = model;
+    this.user = user; //event implementation
+
+    this.onSetAgeClick = function () {
+      _this.user.setRandomAge();
+
+      console.log(_this.user.get("age"));
+    };
+
+    this.bindModel();
   }
+
+  UserForm.prototype.bindModel = function () {
+    var _this = this;
+
+    this.user.on('change', function () {
+      _this.render();
+    });
+  };
 
   UserForm.prototype.eventsMap = function () {
     return {
-      "click:button": this.onButtonClick,
-      "mouseenter:h1": this.onHeaderHover
+      // "click:button": this.onButtonClick,
+      "mouseenter:h1": this.onHeaderHover,
+      "click:.set-age": this.onSetAgeClick
     };
-  }; //event implementation
-
-
-  UserForm.prototype.onButtonClick = function () {
-    console.log('Button clicked');
-  }; //event implementation
+  }; // //event implementation
+  // onButtonClick(): void {
+  //     console.log('Button clicked');
+  // }
+  //event implementation
 
 
   UserForm.prototype.onHeaderHover = function () {
@@ -151,7 +169,7 @@ function () {
   };
 
   UserForm.prototype.template = function () {
-    return "\n            <div>\n                <h1>User Form</h1>\n                <div>User name: " + this.model.get('name') + "</div>\n                <div>User age: " + this.model.get('age') + "</div>\n                <input />\n                <button>Click Me</button>\n            </div>\n        ";
+    return "\n            <div>\n                <h1>User Form</h1>\n                <div>User name: " + this.user.get('name') + "</div>\n                <div>User age: " + this.user.get('age') + "</div>\n                <input />\n                <button>Click Me</button>\n                <br/>\n                <button class=\"set-age\">Set Random Age</button>\n            </div>\n        ";
   }; //helper method
 
 
@@ -175,6 +193,7 @@ function () {
   };
 
   UserForm.prototype.render = function () {
+    this.parent.innerHTML = "";
     var templateElement = document.createElement('template');
     templateElement.innerHTML = this.template();
     this.bindEvents(templateElement.content);
@@ -2294,6 +2313,13 @@ function (_super) {
   User.buildUserCollection = function () {
     return new Collection_1.Collection(rootUrl, function (json) {
       return User.buildUser(json);
+    });
+  };
+
+  User.prototype.setRandomAge = function () {
+    var age = Math.round(Math.random() * 120);
+    this.set({
+      age: age
     });
   };
 
