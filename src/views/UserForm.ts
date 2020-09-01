@@ -1,28 +1,17 @@
-import { User } from '../models/User'
+import { User, UserProps } from '../models/User'
+import { View } from './View'
 
-export class UserForm {
-    constructor(public parent: Element, public user: User) {
-        this.bindModel();
-    }
-
-    bindModel(): void {
-        this.user.on( 'change', () => {
-            this.render();
-        } );
-    }
-
-    eventsMap(): { [key: string]: () => void } {
+export class UserForm extends View<User, UserProps> {
+    
+    eventsMap(): { [key: string]: () => void } { 
         return {
             // "click:button": this.onButtonClick,
             "mouseenter:h1": this.onHeaderHover,
-            "click:.set-age": this.onSetAgeClick
+            "click:.set-age": this.onSetAgeClick,
+            "click:.set-name": this.onSetNameClick,
+            "click:.save-model": this.onSaveClick
         };
     }
-
-    // //event implementation
-    // onButtonClick(): void {
-    //     console.log('Button clicked');
-    // }
 
     //event implementation
     onHeaderHover(): void {
@@ -35,42 +24,34 @@ export class UserForm {
         console.log(this.user.get("age"));
     }
 
+    //event implementation
+    onSetNameClick = (): void => {
+        const input = this.parent.querySelector("input");
+
+        if (input) {  //type guard technique
+            const name = input.value;
+            this.user.set({name: name});  //this.user.set({ name }) //es2015 refactor
+        }
+    }
+
+    //event implementation
+    onSaveClick = (): void => {
+        this.user.save();
+    }
+
     template(): string {
         return `
             <div>
-                <h1>User Form</h1>
-                <div>User name: ${this.user.get('name')}</div>
-                <div>User age: ${this.user.get('age')}</div>
-                <input />
-                <button>Click Me</button>
+                <input placeholder="${this.user.get('name')}"/>
+                <button class="set-name">Change Name</button>
                 <br/>
                 <button class="set-age">Set Random Age</button>
+                <br/>
+                <button class="save-model">Save User</button>
             </div>
         `;
     }
 
     //helper method
-    bindEvents(fragment: DocumentFragment): void {
-        const eventsMap = this.eventsMap();
-
-        for (let eventKey in eventsMap) {
-            const [eventName, selector] = eventKey.split(':');
-
-            fragment.querySelectorAll(selector).forEach(element => {
-                //event handler
-                element.addEventListener(eventName, eventsMap[eventKey]);
-            });
-        }
-    }
-
-    render(): void {
-        this.parent.innerHTML = "";
-
-        const templateElement = document.createElement('template');
-        templateElement.innerHTML = this.template();
-
-        this.bindEvents(templateElement.content);
-
-        this.parent.append(templateElement.content);
-    }
+    
 }
